@@ -55,3 +55,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+#annabel created content
+input_images/
+output/
+profiles/
+*.jpg
+*.png
