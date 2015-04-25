@@ -56,7 +56,7 @@ docs/_build/
 # PyBuilder
 target/
 
-#annabel created content
+# annabel created content
 input_images/
 output/
 profiles/
