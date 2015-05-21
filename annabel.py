@@ -40,7 +40,7 @@ CROP_HEIGHT = 40
 CROP_WIDTH = 40
 CROP_INCREMENT = 20
 SAMPLE_DIMENSION = 10,10 # 10x10 (100) dimension vector sample
-TREE_SIZE = 10  # number of trees to create for ANN search.
+TREE_SIZE = 5  # number of trees to create for ANN search.
 
 
 def main():
@@ -104,7 +104,7 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
     # todo: use crop ratio to calculate variable vector size
     nns_index = AnnoyIndex(SAMPLE_DIMENSION[0]*SAMPLE_DIMENSION[1], metric="euclidean")
     image_index = []
-    index = 1
+    index = 0
     # iterate over images for processing into boxes and associated feature vectors
     for image_file in image_file_list:
         print("processing {}...").format(image_file),
@@ -112,8 +112,8 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
         copyfile(image_folder + image_file, image_destination)
         image = Image.open(image_destination)
         image_width, image_height = image.size[0], image.size[1]
-        for x in xrange(0, image_width, crop_increment):
-            for y in xrange(0, image_height, crop_increment):
+        for x in xrange(0, image_width-crop_width, crop_increment):
+            for y in xrange(0, image_height-crop_height, crop_increment):
                 box = (x, y, x + crop_width, y + crop_height)
                 image_sample = image.crop(box).resize(
                     SAMPLE_DIMENSION).convert("LA")  # dimensionality reduction
@@ -127,8 +127,8 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
                     index, {"image": image_destination, "box": (x, y, x + crop_width, y + crop_height)})
                 index += 1
         print("done.")
-    # image_index[0] holds profile metadata.
-    image_index.insert(0,{"crop_width": crop_width, "crop_height": crop_height, "total_images": index-1})
+    # image_index[-1] holds profile metadata.
+    image_index.append({"crop_width": crop_width, "crop_height": crop_height, "total_images": index-1})
     print("{} total subimages to be indexed...").format(str(index-1))
     print("building trees (this can take awhile)...")
     nns_index.build(TREE_SIZE)  # annoy builds trees
@@ -160,24 +160,24 @@ def create_collage(input_image, profile_name, version_count):
         open(profile_folder + profile_name + ".p", "rb"))
     template_image = Image.open(input_image)
     image_width, image_height = template_image.size[0], template_image.size[1]
-    crop_width, crop_height = subimage_index[0]["crop_width"], subimage_index[0]["crop_height"]
+    crop_width, crop_height = subimage_index[-1]["crop_width"], subimage_index[-1]["crop_height"]
     for i in xrange(version_count):
         print("Creating collage {}/{}...").format(i+1, version_count)
         output_image = template_image.copy()
-        for x in xrange(0, image_width, crop_width):
-            for y in xrange(0, image_height, crop_height):
+        for x in xrange(0, image_width-crop_width, crop_width):
+            for y in xrange(0, image_height-crop_height, crop_height):
                 box = (x, y, x + crop_width, y + crop_height)
                 crop_box = output_image.crop(box)
                 crop_sample = crop_box.convert("LA").resize(SAMPLE_DIMENSION)
                 gs_pixeldata = []
                 for pixel in list(crop_sample.getdata()):
                     gs_pixeldata.append(pixel[0])
-                image_neighbor = nns_index.get_nns_by_vector(
-                    gs_pixeldata, version_count)[i]
-                substitute_image = Image.open(
-                    subimage_index[image_neighbor]["image"])
+                image_neighbor = nns_index.get_nns_by_vector(gs_pixeldata, version_count)[i]
+                #print("{},{}:{}").format(x,y,image_neighbor)
+                #if image_neighbor != 0:
+                substitute_image = Image.open(subimage_index[image_neighbor]["image"])
                 substitute_crop = substitute_image.crop(
-                    subimage_index[image_neighbor]["box"])
+                subimage_index[image_neighbor]["box"])
                 output_image.paste(substitute_crop, box)
         output_path = OUTPUT_DIRECTORY + str(i) + ".png"
         output_image.save(output_path, "PNG")
@@ -196,8 +196,8 @@ def list_profiles():
     for directory in os.listdir(PROFILES_DIRECTORY):
         subimage_index = pickle.load(
             open(PROFILES_DIRECTORY + directory + "/" + directory + ".p", "rb"))
-        total_images = subimage_index[0]["total_images"]
-        crop_size = str(subimage_index[0]["crop_width"]) + "x" + str(subimage_index[0]["crop_height"])
+        total_images = subimage_index[-1]["total_images"]
+        crop_size = str(subimage_index[-1]["crop_width"]) + "x" + str(subimage_index[-1]["crop_height"])
         print("{0:<15} {1:<15} {2:<8}").format(directory, total_images, crop_size)
     return
 
