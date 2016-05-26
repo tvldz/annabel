@@ -173,8 +173,6 @@ def create_collage(input_image, profile_name, version_count):
                 for pixel in list(crop_sample.getdata()):
                     gs_pixeldata.append(pixel[0])
                 image_neighbor = nns_index.get_nns_by_vector(gs_pixeldata, version_count)[i]
-                #print("{},{}:{}").format(x,y,image_neighbor)
-                #if image_neighbor != 0:
                 substitute_image = Image.open(subimage_index[image_neighbor]["image"])
                 substitute_crop = substitute_image.crop(
                 subimage_index[image_neighbor]["box"])
