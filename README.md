@@ -4,13 +4,16 @@ Approximate Nearest Neighbor Assisted Generative Collage
 ```
  _ __ __  _ |_  _  |
 (_|| || |(_||_)(/_ |
+
 annabel.py
 Approximate Nearest Neighbor Assisted Generative Collage
 Copyright (C) 2015 Thomas Valadez (@tvldz)
 License: GPLv2
+
 Requires
 annoy: https://github.com/spotify/annoy
 pillow: http://python-pillow.github.io/
+
 annabel.py is a tool for creating generative collages using
 approximate nearest neighbor search. Source images are cropped,
 processed (as a feature vector of grayscale values) and indexed
