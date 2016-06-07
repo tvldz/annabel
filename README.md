@@ -1,6 +1,5 @@
 # Annabel
-Generative collage assisted by approximate nearest neighbor
-
+Approximate Nearest Neighbor Assisted Generative Collage
 ## About
 ```
  _ __ __  _ |_  _  |
