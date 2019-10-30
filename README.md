@@ -41,7 +41,5 @@ optional arguments:
 ## Example Output
 An image of the moon created from cartoon stills
 <img src="https://github.com/tvldz/annabel/blob/master/examples/moon_collage.png"><p>
-An actress' face created from vintage greyscale landscape photos.
-<img src="https://github.com/tvldz/annabel/blob/master/examples/jones_collage.png"><p>
 Marilyn Monroe created from images of the surface of the moon.
 <img src="https://github.com/tvldz/annabel/blob/master/examples/marilyn_collage.png">
