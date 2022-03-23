@@ -114,8 +114,8 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
         copyfile(image_folder + image_file, image_destination)
         image = Image.open(image_destination)
         image_width, image_height = image.size[0], image.size[1]
-        for x in xrange(0, image_width-crop_width, crop_increment):
-            for y in xrange(0, image_height-crop_height, crop_increment):
+        for x in range(0, image_width-crop_width, crop_increment):
+            for y in range(0, image_height-crop_height, crop_increment):
                 box = (x, y, x + crop_width, y + crop_height)
                 image_sample = image.crop(box).resize(
                     SAMPLE_DIMENSION).convert("LA")  # dimensionality reduction
@@ -162,11 +162,11 @@ def create_collage(input_image, profile_name, version_count):
     template_image = Image.open(input_image)
     image_width, image_height = template_image.size[0], template_image.size[1]
     crop_width, crop_height = subimage_index[-1]["crop_width"], subimage_index[-1]["crop_height"]
-    for i in xrange(version_count):
+    for i in range(version_count):
         print("Creating collage {}/{}...".format(i+1, version_count))
         output_image = template_image.copy()
-        for x in xrange(0, image_width-crop_width, crop_width):
-            for y in xrange(0, image_height-crop_height, crop_height):
+        for x in range(0, image_width-crop_width, crop_width):
+            for y in range(0, image_height-crop_height, crop_height):
                 box = (x, y, x + crop_width, y + crop_height)
                 crop_box = output_image.crop(box)
                 crop_sample = crop_box.convert("LA").resize(SAMPLE_DIMENSION)
