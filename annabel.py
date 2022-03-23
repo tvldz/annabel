@@ -76,9 +76,11 @@ def main():
                           help="number of versions to output", dest="version_count")
 
     parser_c = subparsers.add_parser("list", help="list the available profiles.")
-
+    
     results = parser.parse_args()
-    if sys.argv[1] == "gather":
+    if len(sys.argv) <= 1:
+        parser.print_help()
+    elif sys.argv[1] == "gather":
         create_profile(results.name, results.images_folder,
                        results.cwidth, results.cheight, results.cincrement)
     elif sys.argv[1] == "create":
@@ -107,13 +109,13 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
     index = 0
     # iterate over images for processing into boxes and associated feature vectors
     for image_file in image_file_list:
-        print("processing {}...").format(image_file),
+        print("processing {}...".format(image_file),)
         image_destination = profile_folder + "images/" + image_file
         copyfile(image_folder + image_file, image_destination)
         image = Image.open(image_destination)
         image_width, image_height = image.size[0], image.size[1]
-        for x in xrange(0, image_width-crop_width, crop_increment):
-            for y in xrange(0, image_height-crop_height, crop_increment):
+        for x in range(0, image_width-crop_width, crop_increment):
+            for y in range(0, image_height-crop_height, crop_increment):
                 box = (x, y, x + crop_width, y + crop_height)
                 image_sample = image.crop(box).resize(
                     SAMPLE_DIMENSION).convert("LA")  # dimensionality reduction
@@ -129,7 +131,7 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
         print("done.")
     # image_index[-1] holds profile metadata.
     image_index.append({"crop_width": crop_width, "crop_height": crop_height, "total_images": index-1})
-    print("{} total subimages to be indexed...").format(str(index-1))
+    print("{} total subimages to be indexed...".format(str(index-1)))
     print("building trees (this can take awhile)...")
     nns_index.build(TREE_SIZE)  # annoy builds trees
     print("done.")
@@ -139,8 +141,7 @@ def create_profile(profile_name, image_folder, crop_width, crop_height, crop_inc
     print("serializing index..."),
     pickle.dump(image_index, open(profile_folder + profile_name + ".p", "wb"))
     print("done.")
-    print("{} profile completed. Saved in {}").format(
-        profile_name, profile_folder)
+    print("{} profile completed. Saved in {}".format(profile_name, profile_folder))
     return
 
 
@@ -161,11 +162,11 @@ def create_collage(input_image, profile_name, version_count):
     template_image = Image.open(input_image)
     image_width, image_height = template_image.size[0], template_image.size[1]
     crop_width, crop_height = subimage_index[-1]["crop_width"], subimage_index[-1]["crop_height"]
-    for i in xrange(version_count):
-        print("Creating collage {}/{}...").format(i+1, version_count)
+    for i in range(version_count):
+        print("Creating collage {}/{}...".format(i+1, version_count))
         output_image = template_image.copy()
-        for x in xrange(0, image_width-crop_width, crop_width):
-            for y in xrange(0, image_height-crop_height, crop_height):
+        for x in range(0, image_width-crop_width, crop_width):
+            for y in range(0, image_height-crop_height, crop_height):
                 box = (x, y, x + crop_width, y + crop_height)
                 crop_box = output_image.crop(box)
                 crop_sample = crop_box.convert("LA").resize(SAMPLE_DIMENSION)
@@ -180,8 +181,7 @@ def create_collage(input_image, profile_name, version_count):
         output_path = OUTPUT_DIRECTORY + str(i) + ".png"
         output_image.save(output_path, "PNG")
         print("done.")
-    print("{} image(s) saved in {}").format(
-            version_count, OUTPUT_DIRECTORY)
+    print("{} image(s) saved in {}".format(version_count, OUTPUT_DIRECTORY))
     return
 
 
@@ -190,13 +190,13 @@ def list_profiles():
     list the available profiles and associated metadata
     """
     print("Available Profiles:")
-    print("{0:<15} {1:<15} {2:<8}").format("name", "# of images", "size (px)")
+    print("{0:<15} {1:<15} {2:<8}".format("name", "# of images", "size (px)"))
     for directory in os.listdir(PROFILES_DIRECTORY):
         subimage_index = pickle.load(
             open(PROFILES_DIRECTORY + directory + "/" + directory + ".p", "rb"))
         total_images = subimage_index[-1]["total_images"]
         crop_size = str(subimage_index[-1]["crop_width"]) + "x" + str(subimage_index[-1]["crop_height"])
-        print("{0:<15} {1:<15} {2:<8}").format(directory, total_images, crop_size)
+        print("{0:<15} {1:<15} {2:<8}".format(directory, total_images, crop_size))
     return
 
 if __name__ == "__main__":
